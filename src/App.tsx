@@ -78,7 +78,7 @@ const App = () => {
                 {
                   b?.seat?.map((s) =>
                     <button title={String(b.price) + ' RS./-'} onClick={() => selectSeat(i, s.number)} disabled={s?.isBooked} key={s.number} className={` ${!s?.isBooked && s?.isChecked ? 'bg-red-600' : s?.className} cursor-pointer  p-5 border rounded-2xl `}  >
-                      <p>{s.number}</p>
+                      <p>{b.label + s.number}</p>
                     </button>
                   )
                 }
