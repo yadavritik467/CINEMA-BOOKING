@@ -4,6 +4,7 @@ import { bookingDummyData, type BookingData } from "./data/bookingData"
 const App = () => {
 
   const [booking, setBooking] = useState<BookingData[]>(bookingDummyData)
+  const [mySeatsArr, setMySeatArr] = useState<string[]>([])
 
   const selectSeat = (index: number, seatNum: number) => {
     const updateBookingArr = booking.map((b, i) => {
@@ -19,13 +20,47 @@ const App = () => {
             return { ...s }
           }
         })
-        return{...b, seat : updateSeat}
+        return { ...b, seat: updateSeat }
       } else {
         return { ...b }
       }
     })
     setBooking(updateBookingArr)
+
+    const singleBookingSeats = updateBookingArr[index].seat.find(
+      (d) => d.number === seatNum
+    )?.number;
+
+    if (!singleBookingSeats) return;
+
+    const seatNameWithNum = updateBookingArr[index].label + String(singleBookingSeats);
+
+    setMySeatArr((prevSeats) => {
+      if (prevSeats?.includes(seatNameWithNum)) {
+        // already selected → remove
+        return prevSeats.filter((d) => d !== seatNameWithNum);
+      } else {
+        // not selected → add
+        return [...prevSeats as string[], seatNameWithNum];
+      }
+    });
   }
+
+  const handleBooking = () => {
+    const updateBookingArr = booking.map((b) => ({
+      ...b,
+      seat: b.seat.map((s) => ({
+        ...s,
+        className: s.isChecked ? "bg-gray-500 text-white" : s.className,
+        isBooked: s.isChecked ? true : s.isBooked
+      }))
+
+    }))
+    setBooking(updateBookingArr)
+    alert('Your seats are booked')
+    return
+  }
+
 
 
   return (
@@ -42,7 +77,7 @@ const App = () => {
               <div className="col-span-7 flex justify-evenly">
                 {
                   b?.seat?.map((s) =>
-                    <button title={String(b.price) + ' RS./-'} onClick={() => selectSeat(i, s.number)} disabled={s?.isBooked} key={s.number} className={` ${!s?.isBooked && s?.isChecked ? 'bg-red-600':  s?.className} cursor-pointer  p-5 border rounded-2xl `}  >
+                    <button title={String(b.price) + ' RS./-'} onClick={() => selectSeat(i, s.number)} disabled={s?.isBooked} key={s.number} className={` ${!s?.isBooked && s?.isChecked ? 'bg-red-600' : s?.className} cursor-pointer  p-5 border rounded-2xl `}  >
                       <p>{s.number}</p>
                     </button>
                   )
@@ -60,21 +95,21 @@ const App = () => {
             Ultra Golden :  750 Rs/-
           </div>
           <div className="col-span-3">
-             Golden : 550 Rs/-
+            Golden : 550 Rs/-
           </div>
           <div className="col-span-3">
-             Golden :  250 Rs/-
+            Golden :  250 Rs/-
           </div>
           <div className="col-span-3">
-             Golden :  100 Rs/-
+            Golden :  100 Rs/-
           </div>
         </div>
 
         <div className="flex flex-col justify-evenly px-5">
-          <p> Selected seats : {booking.reduce((acc,curr)=> acc + curr.selectedSeatsLen() ,0)} </p>
-          <p> Total Price : Rs/- {booking.reduce((acc,curr)=> acc + curr.selectedSeatsLen() * curr.price ,0)} </p>
+          <p> Selected seats : {booking.reduce((acc, curr) => acc + curr.selectedSeatsLen(), 0)} ,  ( <span className="flex gap-4 w-[80%] flex-wrap"> {mySeatsArr?.map(m => <span key={m}>{m}</span>)} </span>) </p>
+          <p> Total Price : Rs/- {booking.reduce((acc, curr) => acc + curr.selectedSeatsLen() * curr.price, 0)} </p>
 
-          <button className="bg-red-500 text-white text-center rounded-2xl border my-3 py-3">Book Seats</button>
+          <button onClick={handleBooking} className="bg-red-500 text-white text-center rounded-2xl border my-3 py-3">Book Seats</button>
         </div>
       </div>
     </div>
